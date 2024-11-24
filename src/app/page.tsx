@@ -7,7 +7,7 @@ interface Participant {
   nom: string;
   email: string;
   telephone: string;
-  nombrePersonnes: number;
+  
 }
 
 export default function Home() {
@@ -53,12 +53,12 @@ export default function Home() {
         nom: name,
         email: email,
         telephone: telephone,
-        nombrePersonnes: 1
+        
       };
 
       const storedParticipants = localStorage.getItem('participants');
       const participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
-      const emailExists = participantsArray.some((participant: any) => participant.email === newParticipant.email);
+      const emailExists = participantsArray.some((participant: Participant) => participant.email === newParticipant.email);
 
       if (emailExists) {
         alert("Cette adresse email est déjà inscrite.");

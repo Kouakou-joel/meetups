@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 // import pool from '@/lib/db';
 
+// Ajouter l'interface au début du fichier
+interface Participant {
+  id?: string;
+  nom: string;
+  email: string;
+  telephone: string;
+}
+
 export async function POST(request: Request) {
   try {
     // Lire le corps de la requête de manière sécurisée
@@ -25,11 +33,11 @@ export async function POST(request: Request) {
     // const client = await pool.connect();
 
     try {
-      // Vérifier si l'email existe déjà
+      // Vérifier si l'email existe déjà  
       if (typeof window !== 'undefined') {
         const storedParticipants = localStorage.getItem('participants');
         const participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
-        const emailExists = participantsArray.some((participant: any) => participant.email === participants.email);
+        const emailExists = participantsArray.some((participant: Participant) => participant.email === participants.email);
 
         if (emailExists) {
           return NextResponse.json(
@@ -68,7 +76,7 @@ export async function POST(request: Request) {
       // client.release();
     }
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error('Erreur lors de l\'inscription:', error);
     return NextResponse.json(
       { error: 'Erreur lors de l\'inscription' },
