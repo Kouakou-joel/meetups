@@ -1,6 +1,5 @@
- // Start of Selection
 import { NextResponse } from 'next/server';
-import pool from '@/lib/db';
+// import pool from '@/lib/db';
 
 export async function POST(request: Request) {
   try {
@@ -14,8 +13,6 @@ export async function POST(request: Request) {
     }
 
     const participants = JSON.parse(text);
-
-    console.log('Participants:', participants);
     
     // Vérification des données reçues
     if (!participants.nom || !participants.email || !participants.telephone) {
@@ -25,37 +22,50 @@ export async function POST(request: Request) {
       );
     }
 
-    const client = await pool.connect();
+    // const client = await pool.connect();
 
     try {
       // Vérifier si l'email existe déjà
-      const checkEmail = await client.query(
-        'SELECT * FROM participants WHERE email = $1',
-        [participants.email]
-      );
+      if (typeof window !== 'undefined') {
+        let storedParticipants = localStorage.getItem('participants');
+        let participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
+        const emailExists = participantsArray.some((participant: any) => participant.email === participants.email);
 
-      if (checkEmail.rows.length > 0) {
-        return NextResponse.json(
-          { error: 'Cette adresse email est déjà inscrite' },
-          { status: 400 }
-        );
+        if (emailExists) {
+          return NextResponse.json(
+            { error: 'Cette adresse email est déjà inscrite' },
+            { status: 400 }
+          );
+        }
       }
 
-      // Insérer le nouveau participant
-      const result = await client.query(
-        `INSERT INTO participants (nom, email, telephone, nombre_personnes)
-         VALUES ($1, $2, $3, $4)
-         RETURNING *`,
-        [participants.nom, participants.email, participants.telephone, participants.nombrePersonnes]
-      );
+      // Générer un ID unique pour le participant
+      const generateUniqueId = () => {
+        return '_' + Math.random().toString(36).substr(2, 9);
+      };
+
+      const data = {
+        id: generateUniqueId(),
+        nom: participants.nom,
+        email: participants.email,
+        telephone: participants.telephone
+      }
+
+      // Stocker les données dans le localStorage
+      if (typeof window !== 'undefined') {
+        let storedParticipants = localStorage.getItem('participants');
+        let participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
+        participantsArray.push(data);
+        localStorage.setItem('participants', JSON.stringify(participantsArray));
+      }
 
       return NextResponse.json({
         success: true,
-        participant: result.rows[0]
+        participant: data
       });
 
     } finally {
-      client.release();
+      // client.release();
     }
 
   } catch (error) {

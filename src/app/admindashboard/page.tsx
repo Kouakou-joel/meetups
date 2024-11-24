@@ -17,12 +17,8 @@ export default function AdminDashboard() {
 useEffect(() => {
   const fetchParticipants = async () => {
     try {
-      const response = await fetch('/api/participants/account');
-      if (!response.ok) {
-        throw new Error('Erreur lors de la récupération des données');
-      }
-      const data = await response.json();
-      setParticipants(data);
+      const response = localStorage.getItem('participants');
+      setParticipants(JSON.parse(response || '[]'));
     } catch (error) {
       console.error('Erreur lors du chargement des participants:', error);
       // setError('Erreur lors du chargement des participants');
@@ -38,12 +34,12 @@ useEffect(() => {
   // Calculer les statistiques
   const totalInscrits = participants.length;
   const placesRestantes = 500 - totalInscrits;
-  const totalPersonnes = participants.reduce((acc, p) => acc + p.nombre_personnes, 0);
+ ;
 
   return (
     <div className="p-8">
       <div className="mx-auto max-w-6xl">
-        <div className="bg-white shadow-lg p-6 rounded-xl">
+        <div className="bg-white shadow-lg p-6 rounded-xl text-black">
           <h1 className="mb-6 font-bold text-2xl">Tableau de bord administrateur</h1>
           
           {/* Statistiques */}
@@ -58,7 +54,7 @@ useEffect(() => {
             </div>
             <div className="bg-purple-50 p-6 rounded-lg">
               <h3 className="font-medium text-lg text-purple-900">Total Personnes</h3>
-              <p className="font-bold text-3xl text-purple-600">{totalPersonnes}</p>
+              <p className="font-bold text-3xl text-purple-600">{totalInscrits}</p>
             </div>
           </div>
   

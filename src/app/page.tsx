@@ -3,6 +3,7 @@ import Image from "next/image";
 import { useEffect, useState, FormEvent } from "react";
 
 interface Participant {
+  id: string;
   nom: string;
   email: string;
   telephone: string;
@@ -22,13 +23,16 @@ export default function Home() {
 
   const fetchTotalInscrits = async () => {
     try {
-      const response = await fetch('/api/participants/account');
-      if (!response.ok) throw new Error('Erreur lors de la récupération du total');
-      const data = await response.json();
-      setTotalInscrits(data.count || 0);
+      const storedParticipants = localStorage.getItem('participants');
+      const participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
+      setTotalInscrits(participantsArray.length);
     } catch (error) {
       console.log('Erreur lors de la récupération du total:', error);
     }
+  };
+
+  const generateUniqueId = () => {
+    return '_' + Math.random().toString(36).substr(2, 9);
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -45,36 +49,34 @@ export default function Home() {
       }
 
       const newParticipant: Participant = {
+        id: generateUniqueId(),
         nom: name,
         email: email,
         telephone: telephone,
         nombrePersonnes: 1
       };
 
-      const response = await fetch('/api/test-db', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newParticipant)
-      });
+      const storedParticipants = localStorage.getItem('participants');
+      const participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
+      const emailExists = participantsArray.some((participant: any) => participant.email === newParticipant.email);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Data:', data);
-        // Réinitialiser le formulaire
-        setName('');
-        setEmail('');
-        setTelephone('');
-        
-        // Mettre à jour le compteur
-        await fetchTotalInscrits();
-        
-        alert('Inscription réussie !');
-      } else {
-        const errorText = await response.text();
-        throw new Error(`Erreur lors de l'inscription: ${errorText}`);
+      if (emailExists) {
+        alert("Cette adresse email est déjà inscrite.");
+        return;
       }
+
+      participantsArray.push(newParticipant);
+      localStorage.setItem('participants', JSON.stringify(participantsArray));
+
+      // Réinitialiser le formulaire
+      setName('');
+      setEmail('');
+      setTelephone('');
+      
+      // Mettre à jour le compteur
+      await fetchTotalInscrits();
+      
+      alert('Inscription réussie !');
       
     } catch (error) {
       if (error instanceof Error) {
@@ -189,7 +191,7 @@ export default function Home() {
         {/* Footer */}
         <div className="mb-1 text-center text-gray-600">
           <p className="text-sm">
-            Pour toute question, contactez-nous à {" 0704785102 "}
+            Pour toute question, contactez-nous à {" 0170165414 "}
             <a href="mailto:event@example.com" className="text-blue-500 hover:text-blue-400">
               event@example.com
             </a>
