@@ -27,8 +27,8 @@ export async function POST(request: Request) {
     try {
       // Vérifier si l'email existe déjà
       if (typeof window !== 'undefined') {
-        let storedParticipants = localStorage.getItem('participants');
-        let participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
+        const storedParticipants = localStorage.getItem('participants');
+        const participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
         const emailExists = participantsArray.some((participant: any) => participant.email === participants.email);
 
         if (emailExists) {
@@ -53,8 +53,8 @@ export async function POST(request: Request) {
 
       // Stocker les données dans le localStorage
       if (typeof window !== 'undefined') {
-        let storedParticipants = localStorage.getItem('participants');
-        let participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
+        const storedParticipants = localStorage.getItem('participants');
+        const participantsArray = storedParticipants ? JSON.parse(storedParticipants) : [];
         participantsArray.push(data);
         localStorage.setItem('participants', JSON.stringify(participantsArray));
       }
